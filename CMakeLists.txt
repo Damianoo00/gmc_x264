@@ -14,7 +14,8 @@ set(CMAKE_CXX_EXTENSIONS        OFF)
 
 # ── Flagi kompilatora ────────────────────────────────────────
 add_compile_options(
-    -Wall -Wextra -Wpedantic -Wconversion -Wshadow -Werror
+    -Wall -Wextra -Wpedantic -Wconversion -Wshadow 
+    -Werror
 )
 
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
@@ -28,7 +29,7 @@ find_package(libx264 REQUIRED)
 # ── Biblioteka główna ────────────────────────────────────────
 add_library(gmc_x264 SHARED
     src/grass_detector.cpp
-    # src/gmc_estimator.cpp
+    src/gmc_estimator.cpp
     # src/qp_map.cpp
     # src/wrapper.cpp
 )
@@ -60,6 +61,7 @@ if(WITH_TESTS)
 
     add_executable(gmc_tests
         tests/test_grass_detector.cpp
+        tests/test_gmc_estimator.cpp
     )
 
     target_link_libraries(gmc_tests
