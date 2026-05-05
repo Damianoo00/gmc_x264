@@ -29,6 +29,7 @@ jobs:
       run: conan profile detect
 
     # ---------- 4. Install system dependencies (if any) ----------
+    - name: Install system dependencies
       run: |
         sudo apt-get update
         sudo apt-get install -y libgl1-mesa-dev   # OpenCV może wymagać
