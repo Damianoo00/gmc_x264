@@ -24,14 +24,31 @@ endif()
 
 # ── Zależności ───────────────────────────────────────────────
 find_package(OpenCV  REQUIRED COMPONENTS core imgproc video)
-find_package(libx264 REQUIRED)
 
-# ── Biblioteka główna ────────────────────────────────────────
-add_library(gmc_x264 SHARED
+# ── Biblioteka statyczna z algorytmami (do testów) ───────────
+add_library(gmc_algo STATIC
     src/grass_detector.cpp
     src/gmc_estimator.cpp
     src/qp_map.cpp
-    # src/wrapper.cpp
+    src/yuv_converter.cpp
+)
+
+target_include_directories(gmc_algo
+    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+
+target_link_libraries(gmc_algo
+    PRIVATE opencv::opencv
+)
+
+target_compile_definitions(gmc_algo
+    PRIVATE GRASS_REFRESH_FRAMES=${GRASS_REFRESH_FRAMES}
+    PRIVATE $<$<BOOL:${DEBUG_LOGGING}>:GMC_DEBUG_LOGGING>
+)
+
+# ── Biblioteka współdzielona (LD_PRELOAD wrapper) ────────────
+add_library(gmc_x264 SHARED
+    src/wrapper.cpp
 )
 
 target_include_directories(gmc_x264
@@ -39,8 +56,8 @@ target_include_directories(gmc_x264
 )
 
 target_link_libraries(gmc_x264
+    PRIVATE gmc_algo
     PRIVATE opencv::opencv
-    PRIVATE libx264::libx264
     PRIVATE dl
 )
 
@@ -63,10 +80,11 @@ if(WITH_TESTS)
         tests/test_grass_detector.cpp
         tests/test_gmc_estimator.cpp
         tests/test_qp_map.cpp
+        tests/test_yuv_converter.cpp 
     )
 
     target_link_libraries(gmc_tests
-        PRIVATE gmc_x264
+        PRIVATE gmc_algo
         PRIVATE opencv::opencv
         PRIVATE GTest::gtest
         PRIVATE GTest::gtest_main
