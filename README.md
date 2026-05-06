@@ -46,14 +46,17 @@ cd gmc_x264
 # Activate virtual environment (if available)
 source .venv/bin/activate
 
-# Install dependencies and build
-conan build .
+# Install dependencies
+conan install . --output-folder=build --build=missing -s build_type=Release
+
+# Configure with CMake
+cmake --preset conan-release -DWITH_TESTS=ON
+
+# Build
+cmake --build --preset conan-release
 
 # Run tests
-cd build/Release && ctest
-
-# Install library
-conan build . --install
+ctest --preset conan-release
 ```
 
 ### Build Options
@@ -66,7 +69,10 @@ conan build . --install
 
 Example with custom options:
 ```bash
-conan build . -o grass_refresh=10 -o debug_logging=True
+conan install . --output-folder=build --build=missing -s build_type=Release \
+    -o grass_refresh=10 -o debug_logging=True
+cmake --preset conan-release -DWITH_TESTS=ON
+cmake --build --preset conan-release
 ```
 
 ## Usage
@@ -134,6 +140,7 @@ Modified QP offsets are injected into `pic_in->prop.quant_offsets` before the re
 gmc_x264/
 ├── CMakeLists.txt          # Build configuration
 ├── conanfile.py            # Conan package definition
+├── CMakePresets.json       # CMake presets (generated)
 ├── README.md               # This file
 ├── src/
 │   ├── wrapper.cpp         # LD_PRELOAD entry point
@@ -153,6 +160,12 @@ gmc_x264/
 
 Run the test suite:
 
+```bash
+# After building with cmake --preset conan-release -DWITH_TESTS=ON
+ctest --preset conan-release
+```
+
+Or manually:
 ```bash
 cd build/Release
 ctest --verbose
