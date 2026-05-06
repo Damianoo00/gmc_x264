@@ -30,7 +30,7 @@ find_package(libx264 REQUIRED)
 add_library(gmc_x264 SHARED
     src/grass_detector.cpp
     src/gmc_estimator.cpp
-    # src/qp_map.cpp
+    src/qp_map.cpp
     # src/wrapper.cpp
 )
 
@@ -62,6 +62,7 @@ if(WITH_TESTS)
     add_executable(gmc_tests
         tests/test_grass_detector.cpp
         tests/test_gmc_estimator.cpp
+        tests/test_qp_map.cpp
     )
 
     target_link_libraries(gmc_tests
