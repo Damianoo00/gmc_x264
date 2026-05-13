@@ -1,5 +1,5 @@
 #include "qp_map.hpp"
-#include <vector>
+#include <cmath>
 
 namespace gmc {
 
@@ -15,19 +15,27 @@ QpMap QpMapBuilder::build(int width, int height, double dx, double dy) const {
     map.mb_height = mb_height;
     map.offsets.reserve(static_cast<size_t>(mb_width) * mb_height);
 
+    double motion_magnitude = std::sqrt(dx * dx + dy * dy);
+    
     for (int my = 0; my < mb_height; ++my) {
         for (int mx = 0; mx < mb_width; ++mx) {
-            // Środek bloku
             double cx = mx * mb_size + mb_size / 2.0;
             double cy = my * mb_size + mb_size / 2.0;
-            // Przesunięte współrzędne
             double new_cx = cx + dx;
             double new_cy = cy + dy;
 
             int16_t offset = 0;
+            
             if (new_cx < 0 || new_cx >= width || new_cy < 0 || new_cy >= height) {
-                offset = 2;   // blok „wychodzi” poza obraz → mniej ważny
+                offset = 3;
+            } else if (motion_magnitude > 0.05) {
+                int qp_boost = static_cast<int>(motion_magnitude * 50);
+                if (qp_boost > 6) qp_boost = 6;
+                if (qp_boost > 0) {
+                    offset = static_cast<int16_t>(qp_boost);
+                }
             }
+            
             map.offsets.push_back(offset);
         }
     }

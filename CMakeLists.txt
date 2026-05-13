@@ -24,6 +24,7 @@ endif()
 
 # ── Zależności ───────────────────────────────────────────────
 find_package(OpenCV  REQUIRED COMPONENTS core imgproc video)
+find_package(libx264 REQUIRED)
 
 # ── Biblioteka statyczna z algorytmami (do testów) ───────────
 add_library(gmc_algo STATIC
