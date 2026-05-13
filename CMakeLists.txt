@@ -24,6 +24,7 @@ endif()
 
 # ── Zależności ───────────────────────────────────────────────
 find_package(OpenCV  REQUIRED COMPONENTS core imgproc video)
+find_package(libx264 REQUIRED)
 
 # ── Biblioteka statyczna z algorytmami (do testów) ───────────
 add_library(gmc_algo STATIC
@@ -46,6 +47,10 @@ target_compile_definitions(gmc_algo
     PRIVATE $<$<BOOL:${DEBUG_LOGGING}>:GMC_DEBUG_LOGGING>
 )
 
+set_target_properties(gmc_algo PROPERTIES
+    POSITION_INDEPENDENT_CODE ON
+)
+
 # ── Biblioteka współdzielona (LD_PRELOAD wrapper) ────────────
 add_library(gmc_x264 SHARED
     src/wrapper.cpp
@@ -53,6 +58,7 @@ add_library(gmc_x264 SHARED
 
 target_include_directories(gmc_x264
     PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src
+    PRIVATE ${libx264_INCLUDE_DIRS}
 )
 
 target_link_libraries(gmc_x264
